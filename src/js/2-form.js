@@ -1,28 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Form</title>
-    <link rel="stylesheet" href="./css/form.css" />
-  </head>
-  <body>
-    <section>
-      <a href="./index.html">Go to home</a>
-      <h1>Welcome to Form</h1>
-      <form class="feedback-form" autocomplete="off">
-        <label class="label-form">
-          Email
-          <input class="input-form" type="email" name="email" autofocus />
-        </label>
-        <label class="label-form">
-          Message
-          <textarea class="textarea-form" name="message" rows="8"></textarea>
-        </label>
-        <button class="batton-form" type="submit">Submit</button>
-      </form>
-    </section>
-    <script src="./js/2-form.js" type="module"></script>
-  </body>
-</html>
+const STORAGE_KEY = 'feedback-form-state';
+const form = document.querySelector('.feedback-form');
+
+form.addEventListener('input', onFormInput);
+
+function onFormInput() {
+  const email = form.elements.email.value.trim();
+  const message = form.elements.message.value.trim();
+  const data = { email, message };
+  saveToLS(STORAGE_KEY, data);
+}
+
+form.addEventListener('submit', onFormSubmit);
+
+function onFormSubmit(e) {
+  e.preventDefault();
+  const trimEmail = form.elements.email.value.trim();
+  const trimMessage = form.elements.message.value.trim();
+  if (trimEmail && trimMessage) {
+    const data = { email: trimEmail, message: trimMessage };
+    console.log(data);
+    form.reset();
+    localStorage.removeItem(STORAGE_KEY);
+  } else {
+    alert('Check input!');
+  }
+}
+
+restoreData();
+function saveToLS(key, value) {
+  localStorage.setItem(key, JSON.stringify(value));
+}
+
+function loadFromLS(key) {
+  const zip = localStorage.getItem(key);
+  try {
+    const data = JSON.parse(zip);
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function restoreData() {
+  const objInput = loadFromLS(STORAGE_KEY) || {};
+  form.elements.email.value = objInput.email || '';
+  form.elements.message.value = objInput.message || '';
+}
